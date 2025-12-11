@@ -37,7 +37,7 @@ public class ProductController {
         
         // 1. Definir la Ordenación Fija por Marca (Ascendente)
         // Eliminamos el parámetro 'sortBy' de la firma del método y lo fijamos aquí.
-        Sort sort = Sort.by(Sort.Direction.ASC, "brand");
+        Sort sort = Sort.by(Sort.Direction.ASC, "name");
         
         // 2. Configurar la Paginación y la Ordenación (Pageable)
         Pageable pageable = PageRequest.of(page, size, sort);
