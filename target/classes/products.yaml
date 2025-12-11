@@ -1,0 +1,163 @@
+openapi: 3.0.0
+info:
+  title: API de Productos
+  version: 1.0.0
+  description: API para gestionar y obtener información de productos electrónicos (CRUD completo).
+servers:
+  - url: /api/v1
+    description: Servidor de desarrollo
+paths:
+  /products:
+    get:
+      summary: Obtiene una lista de todos los productos
+      description: Devuelve una lista de objetos de producto.
+      responses:
+        '200':
+          description: Lista de productos devuelta con éxito
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+        '500':
+          description: Error interno del servidor
+    post:
+      summary: Crea un nuevo producto
+      description: Añade un nuevo producto a la base de datos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Producto creado con éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Datos de entrada inválidos
+  
+  /products/{id}:
+    parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+        description: ID único del producto.
+        example: 101
+    get:
+      summary: Obtiene un producto por su ID
+      description: Devuelve la información detallada de un único producto.
+      responses:
+        '200':
+          description: Producto encontrado y devuelto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Producto no encontrado
+    
+    put:
+      summary: Modifica el precio de un producto
+      description: Actualiza solo el campo de precio de un producto existente.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPriceUpdate'
+      responses:
+        '200':
+          description: Precio del producto actualizado con éxito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Solicitud inválida (ej. precio no válido)
+        '404':
+          description: Producto no encontrado
+
+    delete:
+      summary: Elimina un producto por su ID
+      description: Elimina permanentemente un producto de la base de datos.
+      responses:
+        '204':
+          description: Producto eliminado con éxito (No Content)
+        '404':
+          description: Producto no encontrado
+
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador único del producto.
+          readOnly: true
+          example: 101
+        name:
+          type: string
+          description: Nombre del producto.
+          example: 'Smartphone X'
+        brand:
+          type: string
+          description: Marca del producto.
+          example: 'TechCorp'
+        price:
+          type: number
+          format: float
+          description: Precio del producto.
+          example: 699.99
+        operating_system:
+          type: string
+          description: Sistema operativo del dispositivo.
+          example: 'Android 14'
+        release_date:
+          type: string
+          format: date
+          description: Fecha de lanzamiento del producto (formato AAAA-MM-DD).
+          example: '2025-03-15'
+        image_url:
+          type: string
+          format: url
+          description: URL de la imagen del producto.
+          example: 'https://ejemplo.com/imagenes/smartphone-x.jpg'
+      required:
+        - name
+        - brand
+        - price
+        - operating_system
+    
+    ProductCreate:
+      type: object
+      description: Esquema utilizado para la creación de un nuevo producto (el ID es generado por el servidor).
+      allOf:
+        - $ref: '#/components/schemas/Product'
+      properties:
+        id:
+          readOnly: false # Se sobrescribe para fines de documentación, pero no debe ser enviado.
+      required:
+        - name
+        - brand
+        - price
+        - operating_system
+
+    ProductPriceUpdate:
+      type: object
+      description: Esquema utilizado para actualizar solo el precio de un producto.
+      properties:
+        price:
+          type: number
+          format: float
+          description: El nuevo precio del producto.
+          example: 749.99
+      required:
+        - price
