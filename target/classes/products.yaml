@@ -9,17 +9,53 @@ servers:
 paths:
   /products:
     get:
-      summary: Obtiene una lista de todos los productos
-      description: Devuelve una lista de objetos de producto.
+      summary: Obtiene una lista paginada y filtrada de productos
+      description: Permite buscar productos por marca, nombre o rango de precio, y devuelve los resultados con paginación.
+      parameters:
+        # Paginación
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+          description: Número de página (comienza en 0).
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+          description: Número de elementos por página.
+        # Búsqueda por Marca y/o Nombre (Modelo)
+        - in: query
+          name: brand
+          schema:
+            type: string
+          description: Filtra productos por marca.
+        - in: query
+          name: name
+          schema:
+            type: string
+          description: Filtra productos por nombre o modelo.
+        # Búsqueda por Marca y/o Precio
+        - in: query
+          name: min_price
+          schema:
+            type: number
+            format: float
+          description: Precio mínimo para el rango de búsqueda.
+        - in: query
+          name: max_price
+          schema:
+            type: number
+            format: float
+          description: Precio máximo para el rango de búsqueda.
       responses:
         '200':
-          description: Lista de productos devuelta con éxito
+          description: Lista paginada de productos devuelta con éxito
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Product'
+                $ref: '#/components/schemas/ProductPage' # Referencia al nuevo esquema de paginación
         '500':
           description: Error interno del servidor
     post:
