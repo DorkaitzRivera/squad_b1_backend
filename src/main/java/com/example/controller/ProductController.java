@@ -2,7 +2,7 @@ package com.example.controller;
 
 import com.example.model.Product;
 import com.example.repository.ProductRepository;
-import com.example.service.ProductSpecification; // Importamos la clase de especificación
+import com.example.service.ProductSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,7 +12,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -21,31 +20,34 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
 
-    // 1. GET (Busqueda Paginada, Filtrada y Ordenada)
+    /**
+     * Obtiene una lista paginada y filtrada de productos.
+     * La ordenación por defecto y fija es por 'brand' (Marca) de forma ascendente.
+     */
     @GetMapping
     public ResponseEntity<Page<Product>> getFilteredProducts(
-            // Paginación
+            // Paginación (Parámetros opcionales)
             @RequestParam(defaultValue = "0") int page, 
             @RequestParam(defaultValue = "10") int size,
-            // Ordenación (siempre por marca, como se solicitó)
-            @RequestParam(defaultValue = "brand") String sortBy,
             // Filtros de búsqueda (todos opcionales)
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) Double min_price,
             @RequestParam(required = false) Double max_price) {
         
-        // 1. Configurar Paginación y Ordenación (Por Marca, ascendente)
-        Sort sort = Sort.by(Sort.Direction.ASC, sortBy);
+        // 1. Definir la Ordenación Fija por Marca (Ascendente)
+        // Eliminamos el parámetro 'sortBy' de la firma del método y lo fijamos aquí.
+        Sort sort = Sort.by(Sort.Direction.ASC, "brand");
+        
+        // 2. Configurar la Paginación y la Ordenación (Pageable)
         Pageable pageable = PageRequest.of(page, size, sort);
         
-        // 2. Construir la Especificación de Filtros
+        // 3. Construir la Especificación de Filtros
         Specification<Product> spec = ProductSpecification.filterProducts(brand, name, min_price, max_price);
         
-        // 3. Ejecutar la consulta
+        // 4. Ejecutar la consulta con el filtro, paginación y ordenación
         Page<Product> productPage = productRepository.findAll(spec, pageable);
         
-        // El objeto Page<Product> ya contiene toda la metadata de paginación
         return ResponseEntity.ok(productPage);
     }
     
@@ -66,7 +68,6 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Product> updateProductPrice(@PathVariable Long id, @RequestBody Product productUpdate) {
-        // ... (lógica de PUT) ...
         return productRepository.findById(id)
                 .map(existingProduct -> {
                     if (productUpdate.getPrice() != null) {
