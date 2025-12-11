@@ -37,7 +37,7 @@ public class ProductController {
         
         // 1. Definir la Ordenación Fija por Marca (Ascendente)
         // Eliminamos el parámetro 'sortBy' de la firma del método y lo fijamos aquí.
-        Sort sort = Sort.by(Sort.Direction.ASC, "name");
+        Sort sort = Sort.by(Sort.Direction.ASC, "brand");
         
         // 2. Configurar la Paginación y la Ordenación (Pageable)
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -54,7 +54,7 @@ public class ProductController {
     // ... (El resto de los métodos POST, GET/{id}, PUT/{id}, DELETE/{id} se mantienen igual) ...
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable Long id) {
+    public ResponseEntity<Product> getProductById(@PathVariable String id) {
         return productRepository.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
